@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>جمعيتي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"
+      rel="stylesheet">
+    <style>
+:root{--bg:radial-gradient(circle at 20% 0%,#3b1d6e 0,#0b1030 45%,#070a1f 100%);--tx:#fff;--sub:#ddd6fe;--glass:rgba(255,255,255,.07);--bd:rgba(255,255,255,.12);--sh:rgba(0,0,0,.25);--inp:rgba(255,255,255,.1);--bar:rgba(255,255,255,.12);--modal:#16183f;--hero:linear-gradient(135deg,rgba(139,92,246,.45),rgba(30,27,75,.5))}
+html.light{--bg:radial-gradient(circle at 15% 0%,#ddd6fe 0,#eef2ff 45%,#fdf4ff 100%);--tx:#1e1b4b;--sub:#6d28d9;--glass:rgba(255,255,255,.55);--bd:rgba(255,255,255,.95);--sh:rgba(109,40,217,.15);--inp:rgba(255,255,255,.75);--bar:rgba(109,40,217,.15);--modal:#f5f3ff;--hero:linear-gradient(135deg,rgba(196,181,253,.75),rgba(255,255,255,.6))}
+.text-violet-200,.text-violet-300{color:var(--sub)!important}
+html.light .text-emerald-300{color:#047857}html.light .text-amber-300{color:#b45309}html.light .text-red-300{color:#b91c1c}
+body{font-family:'Cairo',sans-serif;background:var(--bg);background-attachment:fixed;color:var(--tx);min-height:100vh;transition:background .3s,color .3s}
+.g{background:var(--glass);backdrop-filter:blur(16px) saturate(160%);-webkit-backdrop-filter:blur(16px) saturate(160%);border:1px solid var(--bd);border-radius:1.25rem;box-shadow:0 8px 30px var(--sh);transition:.25s}
+.g:hover{border-color:rgba(167,139,250,.5)}
+.btn{color:#fff;background:linear-gradient(135deg,#8b5cf6,#6d28d9);border-radius:.9rem;padding:.6rem 1.1rem;font-weight:700;transition:.2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(139,92,246,.5)}
+.bar{height:.6rem;background:var(--bar);border-radius:9px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#34d399);transition:width .5s;border-radius:9px}
+.nav.on{color:var(--sub);background:rgba(139,92,246,.2)}
+input,select{background:var(--inp);border:1px solid var(--bd);border-radius:.8rem;padding:.6rem;width:100%;color:var(--tx)}
+select option{color:#000}
+.fab{position:fixed;bottom:5.2rem;left:1rem;z-index:20;display:flex;align-items:center;gap:.45rem;padding:.85rem 1.3rem;border-radius:999px;font-size:1rem;background:linear-gradient(135deg,#a78bfa,#7c3aed 55%,#5b21b6);box-shadow:0 10px 28px rgba(124,58,237,.55),inset 0 1px 0 rgba(255,255,255,.35);border:1px solid rgba(255,255,255,.25)}
+.fab:hover{transform:translateY(-3px) scale(1.04)}.fab:active{transform:scale(.95)}.fab svg{transition:transform .3s}.fab:hover svg{transform:rotate(90deg)}
+.fab::before{content:"";position:absolute;inset:0;border-radius:inherit;border:2px solid rgba(167,139,250,.7);animation:ring 2.6s infinite;pointer-events:none}
+@keyframes ring{0%{transform:scale(1);opacity:.8}100%{transform:scale(1.35);opacity:0}}
+@media(min-width:768px){.fab{bottom:1.5rem;left:1.5rem}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.pg>*{animation:up .45s cubic-bezier(.2,.8,.2,1) both}.pg>*:nth-child(2){animation-delay:.05s}.pg>*:nth-child(3){animation-delay:.1s}.pg>*:nth-child(4){animation-delay:.15s}
+#modal>div,#lock>div,#toast{animation:pop .25s ease both}
+@media(prefers-reduced-motion:reduce){*,::before{animation:none!important;transition:none!important}}
+</style>
+  </head>
+  <body>
+    <aside
+      class="hidden md:flex fixed right-0 top-0 h-full w-56 p-4 flex-col gap-2 g !rounded-none"
+      id="side"></aside>
+    <main class="md:mr-56 p-4 pb-28 max-w-5xl mx-auto" id="app"></main>
+    <nav
+      class="md:hidden fixed bottom-0 inset-x-0 g !rounded-none flex justify-around p-2 z-20"
+      id="bottom"></nav>
+    <div id="modal"
+      class="hidden fixed inset-0 bg-black/60 z-30 items-center justify-center p-4"></div>
+    <button class="btn fab" onclick="openPay(selected??0)"
+      aria-label="تسجيل دفعة"><svg width="22" height="22" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor" stroke-width="2.8"
+        stroke-linecap="round"><path
+          d="M12 5v14M5 12h14" /></svg><span>دفعة</span></button>
+    <div id="warn"
+      class="hidden fixed top-0 inset-x-0 z-[60] bg-red-600 text-white text-sm text-center p-2 font-bold"></div>
+    <div id="lock" class="hidden fixed inset-0 z-50 items-center justify-center"
+      style="background:var(--bg)"></div>
+    <button id="th" class="g fixed top-3 left-3 z-40 w-10 h-10 text-lg"
+      onclick="toggleTheme()" aria-label="تبديل الوضع"></button>
+    <div id="toast"
+      class="hidden fixed bottom-24 md:bottom-6 inset-x-0 mx-auto w-max max-w-[90%] g px-4 py-3 z-40 text-sm"
+      style="background:var(--modal)"></div>
+
+    <script>
+/* ===== الثوابت ===== */
+const MEMBERS=["يوسف","عمر","مصطفى","مروه","يحيى","مصطفى الثاني","إسراء","تيتو","محمود","عبدو"];
+const RECEIVED=[0,1,2];                 // استلموا بالفعل
+const TURN_OWNERS=[3,4,5,6,7,8,9];      // ترتيب الأدوار (من مروه)
+const DAILY=10, TURN_DAYS=6, TOTAL_DAYS=TURN_OWNERS.length*TURN_DAYS; // 42 يوم
+const TURN_VALUE=MEMBERS.length*DAILY*TURN_DAYS;                       // 600
+const START=Date.UTC(2026,9,8), DAY=864e5, KEY="gam3iyyati_payments_v1";
+
+/* ===== أدوات التاريخ (اليوم رقم 0 = 8 أكتوبر 2026) ===== */
+const dateOf=i=>new Date(START+i*DAY);
+const iso=i=>dateOf(i).toISOString().slice(0,10);
+const fmt=(i,long=true)=>dateOf(i).toLocaleDateString('ar-EG-u-nu-latn',{timeZone:'UTC',day:'numeric',month:long?'long':'numeric',year:'numeric'});
+const dayName=i=>dateOf(i).toLocaleDateString('ar-EG',{timeZone:'UTC',weekday:'long'});
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const money=n=>n.toLocaleString('en-US')+" جنيه";
+
+/* ===== منطق الحساب (دوال نقية تعمل على سجل الدفعات الخام) ===== */
+const paidDays=(list,mid)=>list.filter(p=>p.memberId===mid).reduce((s,p)=>s+p.days,0);
+// آخر يوم مدفوع (رقم اليوم) أو -1 إن لم يدفع
+const paidUntilIdx=(list,mid)=>paidDays(list,mid)-1;
+// توزيع فترة (من يوم f لعدد d أيام) على الأدوار: يرجع مبلغ كل دور
+function distribute(f,d){return TURN_OWNERS.map((_,k)=>Math.max(0,Math.min(f+d,k*TURN_DAYS+TURN_DAYS)-Math.max(f,k*TURN_DAYS))*DAILY)}
+// مساهمة عضو في دور = أيامه المدفوعة داخل نطاق الدور × 10
+const contrib=(list,mid,k)=>clamp(paidDays(list,mid)-k*TURN_DAYS,0,TURN_DAYS)*DAILY;
+const turnCollected=(list,k)=>MEMBERS.reduce((s,_,m)=>s+contrib(list,m,k),0);
+const totalCollected=list=>list.reduce((s,p)=>s+p.amount,0);
+const paidOnDay=(list,mid,i)=>paidDays(list,mid)>i;
+
+// إضافة دفعة: تبدأ دائمًا من (آخر يوم مدفوع + 1) فلا يوجد تداخل
+function addPayment(list,mid,amount,note=""){
+  const days=amount/DAILY, from=paidDays(list,mid);
+  return [...list,{id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),memberId:mid,amount,days,
+    fromDate:iso(from),paidUntil:iso(from+days-1),createdAt:new Date().toISOString(),note}];
+}
+// حذف دفعة: نعيد ترتيب باقي دفعات العضو بالتسلسل لتبقى بلا فجوات أو تداخل
+function deletePayment(list,id){
+  const t=list.find(p=>p.id===id); let cur=0;
+  return list.filter(p=>p.id!==id).map(p=>{
+    if(p.memberId!==t.memberId)return p;
+    const f=cur; cur+=p.days;
+    return {...p,fromDate:iso(f),paidUntil:iso(f+p.days-1)};
+  });
+}
+function validate(list,mid,amount){
+  if(!amount||amount<=0)return "أدخل مبلغًا صحيحًا";
+  if(amount%DAILY!==0)return "المبلغ يجب أن يكون من مضاعفات 10 (مثل 10، 20، 30...)";
+  if(paidDays(list,mid)+amount/DAILY>TOTAL_DAYS)return `المبلغ يتجاوز مدة الجمعية (${TOTAL_DAYS} يومًا)`;
+  return null;
+}
+
+/* ===== التخزين ===== */
+let P=[],view="home",selected=0;
+try{P=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){P=[]}
+// الحفظ مع التحقق: لو المتصفح لا يحفظ فعليًا نظهر تحذيرًا واضحًا بدل الفشل الصامت
+const NOSAVE="⚠ هذا المتصفح/العارض لا يحفظ البيانات هنا! افتح الملف مباشرة في Chrome أو Safari (وليس من معاينة أو وضع خاص) أو استضفه على رابط ثابت، واعمل نسخة احتياطية.";
+function warn(msg){const w=document.getElementById("warn");w.textContent=msg;w.classList.remove("hidden")}
+function storeTest(){try{localStorage.setItem("gam3_t","1");const ok=localStorage.getItem("gam3_t")==="1";localStorage.removeItem("gam3_t");return ok}catch(e){return false}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(P));if(localStorage.getItem(KEY)===null)throw 0}catch(e){warn(NOSAVE)}};
+// تسليم الأدوار الفعلي: {رقم الدور: {date, amount}}
+let D={};try{D=JSON.parse(localStorage.getItem("gam3_delivered_v1")||"{}")}catch(e){}
+const saveD=()=>{try{localStorage.setItem("gam3_delivered_v1",JSON.stringify(D))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const PLUS='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+
+/* ===== اليوم والدور الحالي ===== */
+function today(){
+  const n=new Date(), u=Date.UTC(n.getFullYear(),n.getMonth(),n.getDate());
+  const raw=Math.floor((u-START)/DAY);
+  return {idx:clamp(raw,0,TOTAL_DAYS-1),before:raw<0,after:raw>=TOTAL_DAYS};
+}
+const currentTurn=()=>Math.floor(today().idx/TURN_DAYS);
+const turnRange=k=>[k*TURN_DAYS,k*TURN_DAYS+TURN_DAYS-1];
+// استلم = من القائمة المبدئية، أو انتهى يوم آخر يوم في دوره
+const hasReceived=m=>RECEIVED.includes(m)||!!D[TURN_OWNERS.indexOf(m)]||today().after||(TURN_OWNERS.includes(m)&&today().idx>turnRange(TURN_OWNERS.indexOf(m))[1]);
+
+/* ===== مكونات واجهة ===== */
+const pct=(a,b)=>Math.round(a/b*100);
+const barHtml=p=>`<div class="bar"><i style="width:${p}%"></i></div>`;
+const stat=(l,v,s="")=>`<div class="g p-4"><div class="text-xs text-violet-200">${l}</div><div class="text-xl font-extrabold mt-1">${v}</div>${s}</div>`;
+const memberRow=(k,m)=>{const c=contrib(P,m,k);return `<div class="flex items-center gap-2 text-sm py-1">
+ <span class="w-28 truncate">${MEMBERS[m]}</span><div class="flex-1">${barHtml(pct(c,60))}</div>
+ <span class="w-16 text-left ${c===60?'text-emerald-300':''}">${c}/60</span></div>`};
+
+/* ===== الصفحات ===== */
+function pageHome(){
+  const k=currentTurn(),[a,b]=turnRange(k),col=turnCollected(P,k),owner=MEMBERS[TURN_OWNERS[k]];
+  return `<h1 class="text-2xl font-extrabold mb-4">🤝 جمعيتي</h1>
+  <div class="g p-5 mb-4" style="background:var(--hero)">
+    <div class="text-violet-200 text-sm">الدور الحالي (${k+1} من ${TURN_OWNERS.length})</div>
+    <div class="text-3xl font-extrabold">دور ${owner}</div>
+    <div class="text-sm mt-1">من ${fmt(a)} إلى ${fmt(b)}</div>
+    <div class="mt-4 flex justify-between text-sm"><span>تم تحصيل ${money(col)} من ${money(TURN_VALUE)}</span><b>${pct(col,TURN_VALUE)}%</b></div>${barHtml(pct(col,TURN_VALUE))}
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+   ${stat("إجمالي المحصل",money(totalCollected(P)))}${stat("المطلوب في الدور",money(TURN_VALUE))}
+   ${stat("المتبقي",money(TURN_VALUE-col))}${stat("نسبة التحصيل",pct(col,TURN_VALUE)+"%")}
+   ${stat("عدد الأعضاء",MEMBERS.length)}${stat("عدد الدفعات",P.length)}
+   ${stat("بداية الدور",fmt(a,false))}${stat("نهاية الدور",fmt(b,false))}</div>
+  ${lateCard()}<div class="g p-4"><h2 class="font-bold mb-2">حالة الأعضاء في الدور الحالي</h2>${MEMBERS.map((_,m)=>memberRow(k,m)).join("")}</div>
+  <div class="flex flex-wrap gap-2 mt-4 text-sm"><button class="g px-3 py-2" onclick="exportData()">⬇ نسخة احتياطية</button>
+  <label class="g px-3 py-2 cursor-pointer">⬆ استيراد<input type="file" accept=".json" class="hidden" onchange="importData(this)"></label>
+  <button class="g px-3 py-2" onclick="runTests()">▶ اختبارات</button><button class="g px-3 py-2" onclick="pinMenu()">🔒 PIN</button><button class="g px-3 py-2 text-red-300" onclick="resetAll()">🗑 مسح الكل</button></div>`;
+}
+function pageToday(){
+  const t=today(),i=t.idx;
+  const rows=MEMBERS.map((n,m)=>{const ok=paidOnDay(P,m,i),pu=paidUntilIdx(P,m);
+    return `<div class="g p-3 flex justify-between items-center"><div><b>${n}</b><div class="text-xs text-violet-200">مدفوع لحد: ${pu<0?"لم يدفع":fmt(pu)}</div></div>
+    ${ok?`<span class="text-emerald-300 font-bold">✓ ${DAILY} جنيه</span>`:`<button class="btn !py-1 text-sm" onclick="quickPay(${m},${i})">دفع ${(i+1-paidDays(P,m))*DAILY}</button>`}</div>`}).join("");
+  const got=MEMBERS.filter((_,m)=>paidOnDay(P,m,i)).length*DAILY;
+  return `<h1 class="text-2xl font-extrabold mb-1">تحصيل اليوم</h1>
+  <div class="text-violet-200 mb-1">${dayName(i)} ${fmt(i)}</div>
+  ${t.before?`<div class="text-xs text-amber-300 mb-3">الجمعية لم تبدأ بعد — يُعرض أول يوم (8 أكتوبر)</div>`:""}${t.after?`<div class="text-xs text-amber-300 mb-3">انتهت الجمعية — يُعرض آخر يوم</div>`:""}
+  <div class="g p-4 mb-3 grid grid-cols-2 text-center"><div><div class="text-xs">المحصل اليوم</div><div class="text-2xl font-extrabold text-emerald-300">${money(got)}</div></div>
+  <div><div class="text-xs">المطلوب</div><div class="text-2xl font-extrabold">${money(MEMBERS.length*DAILY)}</div></div></div>
+  <div class="grid md:grid-cols-2 gap-2">${rows}</div>`;
+}
+function pageMembers(){
+  if(selected!==null)return pageProfile(selected);
+  return `<h1 class="text-2xl font-extrabold mb-4">الأعضاء</h1><div class="grid sm:grid-cols-2 gap-3">`+MEMBERS.map((n,m)=>{
+    const d=paidDays(P,m),pu=d-1;
+    return `<div class="g p-4 cursor-pointer" onclick="selected=${m};render()"><div class="flex justify-between"><b>${n}</b>
+    <span class="text-xs ${hasReceived(m)?'text-emerald-300':'text-violet-200'}">${hasReceived(m)?"استلم ✓":"لم يستلم"}</span></div>
+    <div class="text-sm my-2">${money(d*DAILY)} • ${d} يوم</div>${barHtml(pct(d,TOTAL_DAYS))}
+    <div class="text-xs text-violet-200 mt-1">مدفوع لحد: ${pu<0?"—":fmt(pu)}</div></div>`}).join("")+`</div>`;
+}
+function pageProfile(m){
+  const d=paidDays(P,m),mine=P.filter(p=>p.memberId===m),pu=d-1;
+  const turnIdx=TURN_OWNERS.indexOf(m);
+  const status=hasReceived(m)?"استلم دوره ✓":`لم يستلم بعد (دوره رقم ${turnIdx+1})`;
+  return `<button class="mb-3 text-violet-300" onclick="selected=null;render()">← رجوع</button>
+  <div class="flex justify-between items-center mb-3"><h1 class="text-2xl font-extrabold">${MEMBERS[m]}</h1><div class="flex gap-2"><button class="g px-3" onclick="shareStatement(${m})">📤 كشف</button><button class="btn flex items-center gap-1" onclick="openPay(${m})">${PLUS} تسجيل دفعة</button></div></div>
+  <div class="g p-4 mb-3"><div class="text-sm text-violet-200 mb-2">${status}</div>
+   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+    <div>إجمالي المدفوع<br><b>${money(d*DAILY)}</b></div><div>عدد الأيام<br><b>${d} يوم</b></div>
+    <div>عدد الدفعات<br><b>${mine.length}</b></div><div>أول دفعة<br><b>${mine.length?fmt(0):"—"}</b></div></div>
+   <div class="mt-3 text-sm">مدفوع لحد: <b>${pu<0?"—":fmt(pu)}</b></div><div class="mt-2">${barHtml(pct(d,TOTAL_DAYS))}</div></div>
+  <h2 class="font-bold mb-2">سجل الدفعات</h2>
+  ${mine.length?[...mine].reverse().map(p=>`<div class="g p-3 mb-2 flex justify-between items-center"><div><b>${money(p.amount)}</b> • ${p.days} يوم
+   <div class="text-xs text-violet-200">من ${fmt(Math.round((Date.parse(p.fromDate)-START)/DAY))} إلى ${fmt(Math.round((Date.parse(p.paidUntil)-START)/DAY))}</div><div class="text-xs text-violet-200">سُجلت: ${new Date(p.createdAt).toLocaleString("ar-EG-u-nu-latn",{dateStyle:"medium",timeStyle:"short"})}${p.note?" • "+esc(p.note):""}</div></div>
+   <button class="text-red-300 text-sm" onclick="removePay('${p.id}')">🗑 حذف</button></div>`).join(""):`<div class="text-violet-200 text-sm">لا توجد دفعات</div>`}`;
+}
+function pageTurns(){
+  return `<h1 class="text-2xl font-extrabold mb-4">أدوار الجمعية</h1><div class="grid md:grid-cols-2 gap-3">`+TURN_OWNERS.map((o,k)=>{
+    const [a,b]=turnRange(k),c=turnCollected(P,k);
+    return `<div class="g p-4 ${k===currentTurn()?'!border-violet-400':''}"><div class="flex justify-between"><b>الدور ${k+1} — ${MEMBERS[o]}</b><span class="text-xs">${pct(c,TURN_VALUE)}%</span></div>
+    <div class="text-xs text-violet-200 mb-2">${fmt(a,false)} → ${fmt(b,false)}</div>
+    <div class="text-sm flex justify-between"><span>المطلوب ${TURN_VALUE}</span><span>المحصل ${c}</span><span>المتبقي ${TURN_VALUE-c}</span></div>${barHtml(pct(c,TURN_VALUE))}
+    <details class="mt-2"><summary class="text-sm text-violet-300 cursor-pointer">مساهمة كل عضو</summary>${MEMBERS.map((_,m)=>memberRow(k,m)).join("")}</details>${deliverBlock(k,c)}</div>`}).join("")+`</div>`;
+}
+
+/* ===== التنقل والعرض ===== */
+const NAV=[["home","🏠","الرئيسية"],["today","📅","تحصيل اليوم"],["members","👥","الأعضاء"],["turns","🔄","الأدوار"]];
+function render(){
+  const pages={home:pageHome,today:pageToday,members:pageMembers,turns:pageTurns};
+  document.getElementById("app").innerHTML=pages[view]();
+  const btn=(v,i,l,c)=>`<button class="nav ${view===v?'on':''} ${c}" onclick="go('${v}')"><span class="text-xl">${i}</span><span class="text-xs">${l}</span></button>`;
+  document.getElementById("bottom").innerHTML=NAV.map(n=>btn(n[0],n[1],n[2],"flex flex-col items-center px-3 py-1 rounded-xl")).join("");
+  document.getElementById("side").innerHTML=`<div class="text-xl font-extrabold mb-4">🤝 جمعيتي</div>`+NAV.map(n=>btn(n[0],n[1],n[2],"flex gap-3 items-center p-3 rounded-xl text-right")).join("")+
+   `<button class="btn mt-4 flex items-center justify-center gap-2" onclick="openPay(${selected??0})">${PLUS} تسجيل دفعة</button>`;
+}
+function go(v){view=v;if(v==="members")selected=null;render();scrollTo(0,0);const a=document.getElementById("app");a.classList.remove("pg");void a.offsetWidth;a.classList.add("pg")}
+
+/* ===== نافذة تسجيل الدفعة + المعاينة ===== */
+function openPay(m){
+  const el=document.getElementById("modal");el.classList.remove("hidden");el.classList.add("flex");
+  el.innerHTML=`<div class="g p-5 w-full max-w-md max-h-[90vh] overflow-auto" style="background:var(--modal)">
+   <h2 class="font-extrabold text-lg mb-3">تسجيل دفعة</h2>
+   <label class="text-sm">العضو</label><select id="pm" onchange="preview()">${MEMBERS.map((n,i)=>`<option value="${i}" ${i===m?'selected':''}>${n}</option>`).join("")}</select>
+   <label class="text-sm mt-3 block">المبلغ (من مضاعفات 10)</label><input id="pa" type="number" inputmode="numeric" oninput="preview()" placeholder="مثال: 60">
+   <label class="text-sm mt-3 block">ملاحظة (اختياري)</label><input id="pn" maxlength="80" placeholder="مثال: دفع كاش / تحويل">
+   <div id="pv" class="mt-3 text-sm"></div>
+   <div class="flex gap-2 mt-4"><button id="ps" class="btn flex-1 opacity-40" onclick="confirmPay()" disabled>حفظ الدفعة</button>
+   <button class="g px-4" onclick="closeModal()">إلغاء</button></div></div>`;
+}
+function closeModal(){const el=document.getElementById("modal");el.classList.add("hidden");el.classList.remove("flex")}
+function preview(){
+  const m=+pm.value,amt=+pa.value,pv=document.getElementById("pv"),ps=document.getElementById("ps");
+  ps.disabled=true;ps.classList.add("opacity-40");
+  if(!pa.value){pv.innerHTML="";return}
+  const err=validate(P,m,amt);
+  if(err){pv.innerHTML=`<div class="text-red-300 font-bold">⚠ ${err}</div>`;return}
+  const days=amt/DAILY,f=paidDays(P,m),dist=distribute(f,days);
+  pv.innerHTML=`<div class="g p-3"><div>العضو: <b>${MEMBERS[m]}</b></div><div>المبلغ: <b>${money(amt)}</b></div><div>عدد الأيام: <b>${days}</b></div>
+   <div>من: <b>${fmt(f)}</b></div><div>إلى: <b>${fmt(f+days-1)}</b></div>
+   <div class="mt-2 font-bold text-violet-200">توزيع المبلغ على الأدوار</div>
+   ${dist.map((v,k)=>v?`<div class="flex justify-between"><span>${MEMBERS[TURN_OWNERS[k]]}</span><b>${v}</b></div>`:"").join("")}</div>`;
+  ps.disabled=false;ps.classList.remove("opacity-40");
+}
+function confirmPay(){
+  const m=+pm.value,amt=+pa.value;if(validate(P,m,amt))return;
+  P=addPayment(P,m,amt,pn.value.trim().slice(0,80));save();closeModal();render();toast("تم حفظ الدفعة ✓");
+}
+function removePay(id){if(confirm("حذف هذه الدفعة؟ سيتم إعادة حساب كل شيء.")){snapshot=P;P=deletePayment(P,id);save();render();toast("تم حذف الدفعة",true)}}
+
+/* ===== الثيم (داكن / فاتح) ===== */
+let theme="dark";try{theme=localStorage.getItem("gam3_theme")||"dark"}catch(e){}
+function applyTheme(){document.documentElement.classList.toggle("light",theme==="light");document.getElementById("th").textContent=theme==="light"?"🌙":"☀️"}
+function toggleTheme(){theme=theme==="light"?"dark":"light";try{localStorage.setItem("gam3_theme",theme)}catch(e){}applyTheme()}
+
+/* ===== إشعار + تراجع ===== */
+let snapshot=null,tt;
+function toast(msg,undo){const el=document.getElementById("toast");
+  el.innerHTML=msg+(undo?` <button class="underline font-bold mr-3" onclick="undoLast()">تراجع</button>`:"");
+  el.classList.remove("hidden");clearTimeout(tt);tt=setTimeout(()=>el.classList.add("hidden"),8000)}
+function undoLast(){if(!snapshot)return;P=snapshot;snapshot=null;save();render();toast("تم التراجع ✓")}
+
+/* ===== دفع سريع / نسخ احتياطي / استيراد / مسح / مشاركة ===== */
+// يدفع كل الأيام المتأخرة حتى اليوم المعروض
+function quickPay(m,i){P=addPayment(P,m,(i+1-paidDays(P,m))*DAILY);save();render();toast("تم تسجيل الدفعة ✓")}
+function exportData(){const b=new Blob([JSON.stringify({v:2,payments:P,delivered:D},null,1)],{type:"application/json"}),a=document.createElement("a");
+  a.href=URL.createObjectURL(b);a.download="gam3iyyati-backup-"+new Date().toISOString().slice(0,10)+".json";a.click()}
+// إعادة بناء تواريخ كل دفعات العضو بالتسلسل (يضمن عدم التداخل)
+const normalize=l=>{const c={};return l.map(p=>{const f=c[p.memberId]||0;c[p.memberId]=f+p.days;return{...p,fromDate:iso(f),paidUntil:iso(f+p.days-1)}})};
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result).payments;
+    if(!Array.isArray(d)||d.some(p=>!(p.memberId>=0&&p.memberId<MEMBERS.length&&p.days>0&&p.amount===p.days*DAILY&&p.id))||MEMBERS.some((_,m)=>paidDays(d,m)>TOTAL_DAYS))throw 0;
+    if(!confirm("سيتم استبدال البيانات الحالية. متابعة؟"))return;
+    snapshot=P;P=normalize(d);const dd=JSON.parse(r.result).delivered;D=dd&&typeof dd==="object"?dd:{};saveD();save();render();toast("تم الاستيراد ✓",true)}catch(e){alert("ملف غير صالح")}};
+  r.readAsText(f);inp.value=""}
+function resetAll(){if(confirm("مسح كل الدفعات؟")&&prompt('للتأكيد اكتب: مسح')==="مسح"){snapshot=P;P=[];D={};saveD();save();render();toast("تم مسح البيانات",true)}}
+function shareStatement(m){const d=paidDays(P,m),pu=d-1;
+  const txt=`كشف حساب ${MEMBERS[m]} - جمعيتي\nإجمالي المدفوع: ${money(d*DAILY)} (${d} يوم)\nمدفوع لحد: ${pu<0?"—":fmt(pu)}\nالدفعات:\n`+P.filter(p=>p.memberId===m).map(p=>`• ${money(p.amount)} (${p.fromDate} → ${p.paidUntil})`).join("\n");
+  if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast("تم نسخ الكشف ✓"),()=>alert(txt));else alert(txt)}
+
+/* ===== المتأخرون ===== */
+function lateCard(){const t=today();if(t.before)return"";const i=t.idx;
+  const late=MEMBERS.map((n,m)=>({m,n,days:i+1-paidDays(P,m)})).filter(x=>x.days>0);
+  return `<div class="g p-4 mb-4"><h2 class="font-bold mb-2">⏰ المتأخرون لحد ${fmt(i,false)}</h2>`+(late.length?late.map(x=>
+   `<div class="flex justify-between items-center py-1 text-sm"><span>${x.n} <span class="text-amber-300">• ${x.days} يوم</span></span><span class="flex items-center gap-2"><b>${money(x.days*DAILY)}</b><button class="btn !py-1 !px-3 text-xs" onclick="quickPay(${x.m},${i})">دفع</button></span></div>`).join(""):`<div class="text-emerald-300 text-sm">✓ الكل مسدد</div>`)+`</div>`}
+
+/* ===== تأكيد تسليم الدور ===== */
+function deliverBlock(k,c){const d=D[k],ended=today().idx>turnRange(k)[1]||today().after;
+  if(d)return `<div class="mt-3 flex justify-between items-center text-sm"><span class="text-emerald-300 font-bold">✓ تم تسليم ${money(d.amount)} بتاريخ ${new Date(d.date).toLocaleDateString("ar-EG-u-nu-latn")}</span><button class="text-red-300 text-xs" onclick="undeliver(${k})">إلغاء</button></div>`;
+  if(!ended&&k!==currentTurn())return"";
+  return `<button class="btn w-full mt-3 text-sm" onclick="deliver(${k})">تأكيد تسليم الدور لـ${MEMBERS[TURN_OWNERS[k]]}</button>`}
+function deliver(k){const c=turnCollected(p,k),short=TURN_VALUE-c;
+  if(!confirm(short>0?`⚠ المحصل ${c} فقط وناقص ${short} جنيه. تسليم ${c} جنيه؟`:`تأكيد تسليم ${TURN_VALUE} جنيه؟`))return;
+  D[k]={date:new Date().toISOString(),amount:c};saveD();render();toast("تم تسجيل التسليم ✓")}
+function undeliver(k){if(confirm("إلغاء تسجيل التسليم؟")){delete D[k];saveD();render()}}
+
+/* ===== قفل PIN (قفل شاشة فقط، وليس تشفيرًا للبيانات) ===== */
+let PIN=null;try{PIN=localStorage.getItem("gam3_pin")}catch(e){}
+const hashPin=x=>{let h=5381;for(const c of "gam3|"+x)h=(h*33^c.charCodeAt(0))>>>0;return h.toString(36)};
+function lock(){const el=document.getElementById("lock");el.classList.remove("hidden");el.classList.add("flex");
+  el.innerHTML=`<div class="g p-6 w-72 text-center" style="background:var(--modal)"><div class="text-4xl mb-2">🔒</div><div class="font-extrabold mb-3">جمعيتي</div>
+  <input id="lp" type="password" inputmode="numeric" maxlength="4" class="text-center text-2xl tracking-widest" oninput="tryUnlock()"><div id="le" class="text-red-300 text-xs mt-2 h-4"></div></div>`;setTimeout(()=>lp.focus(),60)}
+function tryUnlock(){if(lp.value.length<4)return;
+  if(hashPin(lp.value)===PIN){const el=document.getElementById("lock");el.classList.add("hidden");el.classList.remove("flex")}else{le.textContent="رقم خاطئ";lp.value=""}}
+function pinMenu(){
+  if(PIN&&hashPin(prompt("أدخل الرقم الحالي")||"")!==PIN)return alert("رقم خاطئ");
+  const v=prompt(PIN?"رقم جديد من 4 أرقام (اتركه فارغًا لإزالة القفل)":"اختر رقمًا سريًا من 4 أرقام");
+  if(v===null)return;
+  if(v===""&&PIN){PIN=null;try{localStorage.removeItem("gam3_pin")}catch(e){}return toast("تم إزالة القفل")}
+  if(!/^\d{4}$/.test(v))return alert("يجب أن يكون الرقم 4 أرقام");
+  PIN=hashPin(v);try{localStorage.setItem("gam3_pin",PIN)}catch(e){}toast("تم تفعيل القفل 🔒")}
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&PIN)lock()});
+
+/* ===== اختبارات المنطق (لا تلمس البيانات المحفوظة) ===== */
+function runTests(){
+  const r=[],eq=(n,a,b)=>r.push((JSON.stringify(a)===JSON.stringify(b)?"✅ ":"❌ ")+n+(JSON.stringify(a)===JSON.stringify(b)?"":` (حصلنا ${JSON.stringify(a)} والمتوقع ${JSON.stringify(b)})`));
+  let t=addPayment([],0,400);
+  eq("400: مدفوع لحد 16/11",t[0].paidUntil,"2026-11-16");
+  eq("400: التوزيع",distribute(0,40),[60,60,60,60,60,60,40]);
+  eq("400: مجموع الأدوار من العضو",TURN_OWNERS.map((_,k)=>contrib(t,0,k)),[60,60,60,60,60,60,40]);
+  t=addPayment(addPayment(addPayment([],0,60),0,60),0,60);
+  eq("3×60: الأدوار 1-3",[0,1,2].map(k=>contrib(t,0,k)),[60,60,60]);
+  t=addPayment([],5,20);eq("20: مدفوع لحد 9/10",t[0].paidUntil,"2026-10-09");
+  t=addPayment(t,5,30);eq("20+30: مدفوع لحد 12/10",t[1].paidUntil,"2026-10-12");eq("الدفعة الثانية تبدأ 10/10",t[1].fromDate,"2026-10-10");
+  t=deletePayment(t,t[0].id);eq("حذف الأولى: إعادة ترتيب",[t[0].fromDate,t[0].paidUntil],["2026-10-08","2026-10-10"]);
+  eq("رفض 15",!!validate([],0,15),true);eq("رفض 37",!!validate([],0,37),true);eq("قبول 10",validate([],0,10),null);
+  t=MEMBERS.reduce((l,_,m)=>addPayment(l,m,60),[]);
+  eq("10 أعضاء × 60 = 600 للدور الأول",turnCollected(t,0),600);
+  eq("إجمالي الجمعية",totalCollected(t),600);
+  alert(r.join("\n"));
+}
+
+applyTheme();go("home");if(PIN)lock();
+if(!storeTest())warn(NOSAVE);
+else{try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}   // طلب تخزين دائم
+  if(location.protocol==="file:")setTimeout(()=>toast("💡 البيانات مرتبطة بمسار الملف ومتصفحه، افتحه دائمًا من نفس المكان."),1200)}
+</script>
+  </body>
+</html>
